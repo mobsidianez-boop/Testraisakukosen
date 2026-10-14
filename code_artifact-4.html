@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>高専テスト対策アプリ</title>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Quicksand:wght@700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #3B82F6; 
+      --primary-dark: #1D4ED8;
+      --primary-light: #EFF6FF;
+      --accent: #F59E0B;
+      --text: #1F2937;
+      --text-muted: #6B7280;
+      --bg: #F8FAFC;
+      --card-bg: #FFFFFF;
+      --correct: #059669;
+      --correct-bg: #D1FAE5;
+      --wrong: #E11D48;
+      --wrong-bg: #FFE4E6;
+      --border: #E2E8F0;
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 16px;
+      overflow-x: hidden;
+    }
+
+    .container {
+      background: var(--card-bg);
+      max-width: 600px;
+      width: 100%;
+      border-radius: var(--radius);
+      box-shadow: 0 15px 35px rgba(29, 78, 216, 0.2);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* Lucide utilities */
+    .lucide {
+      stroke: currentColor;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .icon-xs { width: 14px; height: 14px; stroke-width: 3; }
+    .icon-sm { width: 18px; height: 18px; stroke-width: 2.5; }
+    .icon-md { width: 22px; height: 22px; stroke-width: 2.5; }
+    .icon-lg { width: 26px; height: 26px; stroke-width: 2; }
+    .icon-xl { width: 32px; height: 32px; stroke-width: 2; }
+
+    /* Header */
+    header { background: var(--primary); color: white; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; }
+    .header-logo-group { display: flex; align-items: center; gap: 12px; }
+    .header-title { font-weight: 900; font-size: 1.2rem; font-family: 'Montserrat', sans-serif; display: flex; align-items: center; letter-spacing: 0.5px;}
+
+    /* Screens & Layout */
+    .screen { padding: 24px; display: none; animation: fadeIn 0.35s ease; }
+    .screen.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .start-title { font-size: 1.55rem; font-weight: 900; color: var(--primary-dark); margin-bottom: 20px; text-align: center; }
+    .section-label { font-weight: bold; font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 8px; }
+
+    /* Cards */
+    .mode-selection { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+    .mode-card { background: white; border: 2px solid var(--border); border-radius: 12px; padding: 16px; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 14px; transition: all 0.2s; }
+    .mode-card:hover { border-color: var(--primary); background: var(--primary-light); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(59, 130, 246, 0.1); }
+    .mode-icon { color: var(--primary-dark); flex-shrink: 0; }
+    .mode-info-title { font-weight: bold; font-size: 1rem; color: var(--text); }
+    .mode-info-desc { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+
+    /* Count Selection */
+    .count-selection { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 24px; }
+    .count-btn { background: white; border: 2px solid var(--border); border-radius: 10px; padding: 14px 4px; font-weight: bold; font-size: 1rem; cursor: pointer; color: var(--text); transition: all 0.2s; text-align: center; }
+    .count-btn:hover, .count-btn.selected { border-color: var(--primary); background: var(--primary-light); color: var(--primary-dark); }
+
+    /* Buttons */
+    .primary-btn { display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--primary); color: white; border: none; width: 100%; padding: 14px; border-radius: 10px; font-size: 1.05rem; font-weight: bold; cursor: pointer; transition: transform 0.1s, background 0.2s; }
+    .primary-btn:hover { background: var(--primary-dark); }
+    .primary-btn:active { transform: scale(0.98); }
+    .secondary-btn { background: #64748B; margin-top: 10px; }
+    .secondary-btn:hover { background: #475569; }
+
+    /* === Quiz Screen === */
+    .quiz-header { margin-bottom: 12px; font-size: 0.85rem; }
+    .quiz-header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .badge-category { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 12px; background: var(--primary-light); color: var(--primary-dark); font-weight: bold; font-size: 0.8rem; border: 1px solid #BFDBFE; }
+    .retire-btn { background: var(--wrong); color: white; border: none; padding: 6px 14px; border-radius: 12px; font-weight: bold; font-size: 0.75rem; cursor: pointer; transition: background 0.2s; }
+    .retire-btn:hover { background: #BE123C; }
+    
+    .quiz-score-tracker { display: flex; gap: 12px; background: #F1F5F9; padding: 6px 14px; border-radius: 20px; font-weight: bold; }
+    .tracker-correct { color: var(--correct); display: flex; align-items: center; gap: 4px; }
+    .tracker-wrong { color: var(--wrong); display: flex; align-items: center; gap: 4px; }
+
+    .progress-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 20px; }
+    .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s ease; }
+    
+    .question-title { font-size: 1.15rem; font-weight: 700; line-height: 1.5; color: var(--text); margin-bottom: 20px; }
+    .options-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+    
+    .option-btn { background: white; border: 2px solid var(--border); padding: 14px 16px; border-radius: 12px; font-size: 0.95rem; color: var(--text); cursor: pointer; text-align: left; transition: all 0.2s ease; display: flex; align-items: center; gap: 12px; line-height: 1.4; }
+    .option-btn:hover:not(:disabled) { background: var(--primary-light); border-color: var(--primary); }
+    .option-btn:disabled { cursor: default; }
+    .option-num { background: #F1F5F9; color: #475569; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85rem; flex-shrink: 0; transition: all 0.2s; }
+    
+    .option-btn.correct { background: var(--correct-bg) !important; border-color: var(--correct) !important; color: var(--correct); font-weight: bold; }
+    .option-btn.correct .option-num { background: var(--correct); color: white; }
+    .option-btn.wrong { background: var(--wrong-bg) !important; border-color: var(--wrong) !important; color: var(--wrong); }
+    .option-btn.wrong .option-num { background: var(--wrong); color: white; }
+
+    /* Animations */
+    .anim-correct-shine { animation: correctShine 0.8s ease-out; }
+    @keyframes correctShine { 0% { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.7); } 50% { box-shadow: 0 0 15px 5px rgba(5, 150, 105, 0); } 100% { box-shadow: none; } }
+    
+    .anim-wrong-shake { animation: wrongShake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
+    @keyframes wrongShake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+
+    .feedback-box { display: none; background: var(--bg); border-radius: 12px; padding: 18px; border-left: 5px solid var(--primary); margin-bottom: 18px; animation: fadeIn 0.3s ease; }
+    .feedback-status { font-weight: bold; font-size: 1.1rem; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+    .feedback-status.is-correct { color: var(--correct); }
+    .feedback-status.is-wrong { color: var(--wrong); }
+    .feedback-text { font-size: 0.95rem; line-height: 1.6; color: #334155; }
+
+    /* === Result Screen === */
+    .result-content { text-align: center; }
+    .result-icon-wrap { background: var(--primary-light); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; color: var(--primary); }
+    .score-num { font-size: 4.5rem; font-weight: 700; font-family: 'Quicksand', sans-serif; color: var(--primary-dark); line-height: 1; }
+    
+    .review-list { text-align: left; margin-bottom: 24px; max-height: 350px; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; padding: 10px 16px; background: #FFFFFF; }
+    .review-item { padding: 16px 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+    .review-item:last-child { border-bottom: none; }
+    .review-q { font-weight: bold; color: var(--text); margin-bottom: 8px; line-height: 1.5; }
+    .review-ans { color: var(--correct); font-weight: bold; display: flex; align-items: flex-start; gap: 6px; margin-bottom: 6px; background: var(--correct-bg); padding: 8px 12px; border-radius: 8px; }
+    .review-exp { color: #475569; line-height: 1.6; font-size: 0.85rem; padding-left: 2px; }
+
+    /* Modal */
+    .modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(2px); display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; z-index: 100; transition: opacity 0.2s; }
+    .modal-overlay.active { opacity: 1; visibility: visible; }
+    .modal-content { background: white; padding: 24px; border-radius: 16px; text-align: center; width: 85%; max-width: 320px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); transform: scale(0.95); transition: transform 0.2s; }
+    .modal-overlay.active .modal-content { transform: scale(1); }
+    .modal-actions { display: flex; gap: 12px; margin-top: 20px; }
+    .modal-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+    .modal-btn-cancel { background: #F1F5F9; color: var(--text); }
+    .modal-btn-cancel:hover { background: #E2E8F0; }
+    .modal-btn-confirm { background: var(--wrong); color: white; }
+    .modal-btn-confirm:hover { background: #BE123C; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="header-logo-group">
+      <i data-lucide="graduation-cap" class="icon-xl"></i>
+      <div class="header-title">高専テスト対策</div>
+    </div>
+  </header>
+
+  <!-- Step 1: 科目選択画面 -->
+  <div class="screen active" id="subjectScreen">
+    <div class="start-content">
+      <h1 class="start-title">科目を選択</h1>
+      <div class="mode-selection">
+        <div class="mode-card" onclick="selectSubject('chemistry')">
+          <span class="mode-icon"><i data-lucide="flask-conical" class="icon-xl"></i></span>
+          <div>
+            <div class="mode-info-title">化学（酸と塩基・対数）</div>
+            <div class="mode-info-desc">pH計算、電離度、対数法則など</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2: 日付選択画面 -->
+  <div class="screen" id="dateScreen">
+    <div class="start-content">
+      <h1 class="start-title">出題範囲の選択</h1>
+      <span class="section-label">追加日を選択してください</span>
+      <div id="dateList" class="mode-selection">
+        <!-- JSで自動生成 -->
+      </div>
+      <button class="primary-btn secondary-btn" onclick="showScreen('subjectScreen')">
+        <i data-lucide="arrow-left" class="icon-sm"></i> 科目選択へ戻る
+      </button>
+    </div>
+  </div>
+
+  <!-- Step 3: 問題数選択画面 -->
+  <div class="screen" id="countScreen">
+    <div class="start-content">
+      <h1 class="start-title">出題数の選択</h1>
+      <span class="section-label">解く問題数を選んでスタート！</span>
+      <div class="count-selection">
+        <button class="count-btn" id="btnCount5" onclick="selectCount(5)">5問</button>
+        <button class="count-btn" id="btnCount10" onclick="selectCount(10)">10問</button>
+        <button class="count-btn" id="btnCountAll" onclick="selectCount('all')">全問</button>
+      </div>
+      <button class="primary-btn" onclick="startQuiz()">
+        <i data-lucide="play" class="icon-sm"></i> スタート！
+      </button>
+      <button class="primary-btn secondary-btn" onclick="showScreen('dateScreen')">
+        <i data-lucide="arrow-left" class="icon-sm"></i> 範囲選択へ戻る
+      </button>
+    </div>
+  </div>
+
+  <!-- クイズ画面 -->
+  <div class="screen" id="quizScreen">
+    <div class="quiz-header">
+      <div class="quiz-header-top">
+        <div class="badge-category"><i data-lucide="book-open" class="icon-sm"></i><span id="qCategoryText">化学</span></div>
+        <button class="retire-btn" onclick="document.getElementById('retireModal').classList.add('active')">やめる</button>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <span style="font-weight: bold; color: var(--text);">問題 <span id="qCurrentNum">1</span> / <span id="qTotalNum">5</span></span>
+        <div class="quiz-score-tracker">
+          <span class="tracker-correct"><i data-lucide="circle" class="icon-xs"></i> <span id="scoreCorrect">0</span></span>
+          <span class="tracker-wrong"><i data-lucide="x" class="icon-xs"></i> <span id="scoreWrong">0</span></span>
+        </div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progressBar"></div></div>
+    </div>
+
+    <div class="question-title" id="questionText">問題文</div>
+    <div class="options-grid" id="optionsArea"></div>
+
+    <div class="feedback-box" id="feedbackBox">
+      <div class="feedback-status" id="feedbackStatus"></div>
+      <div class="feedback-text" id="feedbackExp"></div>
+    </div>
+
+    <button class="primary-btn" id="nextBtn" style="display: none;" onclick="goNext()">
+      次の問題へ <i data-lucide="arrow-right" class="icon-sm"></i>
+    </button>
+  </div>
+
+  <!-- 結果画面 -->
+  <div class="screen" id="resultScreen">
+    <div class="result-content">
+      <div class="result-icon-wrap"><i data-lucide="award" class="icon-xl"></i></div>
+      <div style="font-size: 1.35rem; font-weight: bold; margin-bottom: 10px; color: var(--text);" id="resultMsg">テスト完了！</div>
+      <div style="margin-bottom: 24px;">
+        <span class="score-num" id="resultScore">100</span><span style="font-weight: bold; font-size: 1.5rem; color: var(--text-muted);">点</span>
+      </div>
+      
+      <div id="reviewArea" style="display: none;">
+        <p style="font-weight: bold; font-size: 1rem; margin-bottom: 12px; text-align: left; color: var(--wrong);">
+          <i data-lucide="file-warning" class="icon-sm" style="margin-right: 4px;"></i>間違えた問題の復習
+        </p>
+        <div class="review-list" id="reviewList"></div>
+      </div>
+
+      <button class="primary-btn" onclick="showScreen('subjectScreen')">
+        <i data-lucide="home" class="icon-sm"></i> トップに戻る
+      </button>
+    </div>
+  </div>
+
+  <!-- モーダル -->
+  <div class="modal-overlay" id="retireModal">
+    <div class="modal-content">
+      <h3 style="margin-bottom: 10px; color: var(--text);">本当にやめますか？</h3>
+      <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.4;">ここまでの記録は保存されません。</p>
+      <div class="modal-actions">
+        <button class="modal-btn modal-btn-cancel" onclick="document.getElementById('retireModal').classList.remove('active')">続ける</button>
+        <button class="modal-btn modal-btn-confirm" onclick="document.getElementById('retireModal').classList.remove('active'); showScreen('subjectScreen');">やめる</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  lucide.createIcons();
+
+  // ★重要★: データ構造
+  // options[0] が必ず正解となるように登録されています。
+  // 出題時にプログラム側で選択肢をシャッフルします。
+  const quizData = {
+    chemistry: [
+      // --- 10月5日追加分 (30問) ---
+      { date: "10月5日追加", q: "アレニウスの定義において、酸とは水溶液中で何を生じる物質と定義されているか？", options: ["水素イオン H⁺", "水酸化物イオン OH⁻", "ナトリウムイオン Na⁺", "塩化物イオン Cl⁻"], exp: "アレニウスは、水溶液中で水素イオン H⁺ を生じる物質を「酸」、水酸化物イオン OH⁻ を生じる物質を「塩基」と定義しました。" },
+      { date: "10月5日追加", q: "ブレンステッド・ローリーの定義において、塩基とはどのような物質と定義されているか？", options: ["水素イオン H⁺ を他から受け取る物質", "水素イオン H⁺ を他に与える物質", "水酸化物イオン OH⁻ を他に与える物質", "水酸化物イオン OH⁻ を他から受け取る物質"], exp: "ブレンステッド・ローリーの定義では、水素イオン H⁺ を他から受け取る物質を「塩基」、他に与える物質を「酸」と定義しました。" },
+      { date: "10月5日追加", q: "次のうち、2価の酸はどれか？", options: ["硫酸 H₂SO₄", "塩化水素 HCl", "酢酸 CH₃COOH", "硝酸 HNO₃"], exp: "硫酸 H₂SO₄ は2価の酸です。塩化水素、酢酸、硝酸はいずれも1価の酸です。" },
+      { date: "10月5日追加", q: "酸や塩基が水溶液中で電離する割合を何というか？", options: ["電離度", "溶解度", "濃度", "pH"], exp: "酸や塩基が水溶液中で電離する割合を「電離度」といい、記号αで表されます。" },
+      { date: "10月5日追加", q: "次の酸のうち、強酸に分類されるものはどれか？", options: ["硝酸 HNO₃", "酢酸 CH₃COOH", "フッ化水素 HF", "硫化水素 H₂S"], exp: "硝酸 HNO₃ は強酸です。酢酸、フッ化水素、硫化水素は弱酸に分類されます。" },
+      { date: "10月5日追加", q: "25℃の水溶液において、酸性を示すのはpHがどのような値のときか？", options: ["pH < 7", "pH > 7", "pH = 7", "pH = 14"], exp: "25℃において、pHが7より小さい(pH < 7)ときは酸性、pH=7のときは中性、pHが7より大きい(pH > 7)ときは塩基性を示します。" },
+      { date: "10月5日追加", q: "酸の水溶液が示す性質として正しいものはどれか？", options: ["青色リトマス紙を赤くする", "赤色リトマス紙を青くする", "フェノールフタレイン溶液を赤くする", "マグネシウムとは反応しない"], exp: "酸は青色リトマス紙を赤く変化させます。また、マグネシウムや亜鉛などの金属と反応して水素を発生させます。" },
+      { date: "10月5日追加", q: "酸がマグネシウムや鉄、亜鉛などの金属と反応したときに発生する気体は何か？", options: ["水素", "酸素", "二酸化炭素", "窒素"], exp: "酸は、マグネシウム(Mg)、鉄(Fe)、亜鉛(Zn)などの金属と反応して水素(H₂)を発生させます。" },
+      { date: "10月5日追加", q: "水素イオン (H⁺) が水溶液中で水分子と結合して存在する形を何というか？", options: ["オキソニウムイオン", "水酸化物イオン", "アンモニウムイオン", "硫酸イオン"], exp: "水素イオン(H⁺)は、水溶液中では水分子(H₂O)と配位結合してオキソニウムイオン(H₃O⁺)として存在します。" },
+      { date: "10月5日追加", q: "アンモニア (NH₃) が水に溶けたときの電離を表す式として正しいものはどれか？", options: ["NH₃ ＋ H₂O ⇄ NH₄⁺ ＋ OH⁻", "NH₃ ＋ H⁺ → NH₄⁺", "NH₃ ＋ OH⁻ → NH₂⁻ ＋ H₂O", "NH₃ → NH₂⁻ ＋ H⁺"], exp: "アンモニア(NH₃)は分子内にOH⁻を含みませんが、水と反応して一部がNH₄⁺とOH⁻を生じます。" },
+      { date: "10月5日追加", q: "濃塩酸と濃アンモニア水を近づけたときに生じる白煙の正体は何か？", options: ["塩化アンモニウム", "塩化ナトリウム", "硝酸アンモニウム", "水酸化アンモニウム"], exp: "気体の塩化水素(HCl)とアンモニア(NH₃)が反応し、塩化アンモニウム(NH₄Cl)の微粒子の白煙を生じます。" },
+      { date: "10月5日追加", q: "ブレンステッド・ローリーの定義によれば、反応 NH₃ ＋ H₂O ⇄ NH₄⁺ ＋ OH⁻ において、酸としてはたらいている物質はどれか？", options: ["H₂O", "NH₃", "NH₄⁺", "OH⁻"], exp: "H₂OはNH₃に水素イオン(H⁺)を与えているため、ブレンステッド・ローリーの定義における「酸」としてはたらいています。" },
+      { date: "10月5日追加", q: "次のうち、2価の塩基はどれか？", options: ["水酸化カルシウム", "水酸化ナトリウム", "アンモニア", "塩化水素"], exp: "水酸化カルシウム Ca(OH)₂ は電離して2つのOH⁻を出すことができる2価の塩基です。" },
+      { date: "10月5日追加", q: "酢酸 (CH₃COOH) の価数はいくつか？", options: ["1価", "2価", "3価", "4価"], exp: "酢酸の化学式にはHが4個含まれますが、電離してH⁺になることができるのはCOOHのH(1個)だけなので、1価の酸です。" },
+      { date: "10月5日追加", q: "酸や塩基が水溶液中で電離する割合（電離した物質量÷溶かした物質量）を何というか？", options: ["電離度", "質量パーセント濃度", "モル濃度", "イオン積"], exp: "酸や塩基が水溶液中で電離する割合を「電離度」といい、通常記号αで表されます。" },
+      { date: "10月5日追加", q: "0.050 mol/L の酢酸水溶液の電離度が 0.016 (1.6%) であるとき、電離している酢酸分子の割合はどの程度か？", options: ["ごく一部の分子だけが電離している", "すべての分子が電離している", "半分の分子が電離している", "まったく電離していない"], exp: "電離度が小さい(0.016など)ということは、水溶液中でごく一部の分子だけが電離している状態（弱酸）であることを示します。" },
+      { date: "10月5日追加", q: "次のうち、弱酸に分類されるものはどれか？", options: ["硫化水素", "塩化水素", "硝酸", "硫酸"], exp: "硫化水素(H₂S)は弱酸です。塩化水素(HCl)、硝酸(HNO₃)、硫酸(H₂SO₄)は強酸に分類されます。" },
+      { date: "10月5日追加", q: "シュウ酸 (H₂C₂O₄) は何価の酸か？", options: ["2価", "1価", "3価", "4価"], exp: "シュウ酸(H₂C₂O₄)は2つの水素イオンを放出できる2価の酸です。" },
+      { date: "10月5日追加", q: "次のうち、強塩基はどれか？", options: ["水酸化バリウム", "アンモニア", "水酸化銅(II)", "水酸化鉄(II)"], exp: "水酸化バリウム Ba(OH)₂ は強塩基です。アンモニア、水酸化銅(II)、水酸化鉄(II)は弱塩基に分類されます。" },
+      { date: "10月5日追加", q: "リン酸 (H₃PO₄) は何価の酸か？", options: ["3価", "1価", "2価", "0価"], exp: "リン酸(H₃PO₄)は電離して3つの水素イオン(H⁺)を放出できるため、3価の酸です。" },
+      { date: "10月5日追加", q: "酢酸の水溶液中で、分子が電離する反応とイオンが結合して分子に戻る反応の速さが等しくなり、見かけ上反応が止まった状態を何というか？", options: ["化学平衡（電離平衡）", "溶解平衡", "飽和状態", "中和"], exp: "見かけ上電離が止まった状態を化学平衡の状態、特に電離に関するものを電離平衡といいます。" },
+      { date: "10月5日追加", q: "25℃における水のイオン積 (K_w) の値として正しいものはどれか？", options: ["1.0 × 10⁻¹⁴ (mol/L)²", "1.0 × 10⁻⁷ (mol/L)²", "1.0 × 10⁷ (mol/L)²", "1.0 × 10¹⁴ (mol/L)²"], exp: "25℃での水のイオン積 K_w = [H⁺][OH⁻] は 1.0 × 10⁻¹⁴ (mol/L)² で常に一定です。" },
+      { date: "10月5日追加", q: "水素イオン濃度 [H⁺] と水酸化物イオン濃度 [OH⁻] の関係式として常に成り立つものはどれか？", options: ["[H⁺] × [OH⁻] = K_w", "[H⁺] ＋ [OH⁻] = K_w", "[H⁺] ÷ [OH⁻] = K_w", "[H⁺] － [OH⁻] = K_w"], exp: "水溶液中では、常に水素イオン濃度と水酸化物イオン濃度の積([H⁺][OH⁻])が水のイオン積K_wに等しくなります。" },
+      { date: "10月5日追加", q: "純水に酸を溶かして [H⁺] が増加したとき、水酸化物イオン濃度 [OH⁻] はどう変化するか？", options: ["減少する", "増加する", "変化しない", "ゼロになる"], exp: "[H⁺][OH⁻]の値は一定であるため、酸を加えて[H⁺]が増加すると、[OH⁻]は減少します。" },
+      { date: "10月5日追加", q: "25℃において、水溶液が塩基性を示すのはどの条件のときか？", options: ["[H⁺] < [OH⁻]", "[H⁺] > [OH⁻]", "[H⁺] = [OH⁻]", "[H⁺] = 1.0 × 10⁻⁷"], exp: "塩基性の水溶液では、水酸化物イオンの濃度が水素イオンの濃度より大きくなります ([H⁺] < [OH⁻])。" },
+      { date: "10月5日追加", q: "25℃で、[H⁺] = 1.0 × 10⁻³ mol/L の水溶液の pH はいくつか？", options: ["3", "7", "11", "-3"], exp: "[H⁺] = 1.0 × 10⁻ⁿ mol/L のとき、pH = n となります。したがってこの場合は pH = 3 です。" },
+      { date: "10月5日追加", q: "25℃において、pHが7の水溶液の性質はどうなるか？", options: ["中性", "強酸性", "弱酸性", "塩基性"], exp: "25℃では、pH = 7 の水溶液は中性を示します。" },
+      { date: "10月5日追加", q: "水溶液の pH の値が大きくなるほど、その水溶液の性質はどうなるか？", options: ["塩基性が強くなる", "酸性が強くなる", "中性に近づく", "変化しない"], exp: "pHが7より大きくなるほど塩基性が強くなり、逆に7より小さくなるほど酸性が強くなります。" },
+      { date: "10月5日追加", q: "身のまわりの物質で、最もpHの値が小さい（酸性が強い）と考えられるものはどれか？", options: ["レモン果汁", "牛乳", "水道水", "セッケン水"], exp: "レモン果汁はpHが2〜3程度であり、強い酸性を示します。" },
+      { date: "10月5日追加", q: "マロウブルー（ハーブティー）にレモン果汁を加えると何色に変化するか？", options: ["ピンク色", "青色", "黄色", "無色"], exp: "マロウブルーに含まれるアントシアニンが酸（レモン果汁など）と反応し、ピンク色に変化します。" },
+
+      // --- 10月14日追加分 (19問) ---
+      { date: "10月14日追加", q: "温度が変わらなければ、溶質によらず常に一定になる値 K_w = [H⁺][OH⁻] を何というか？", options: ["水のイオン積", "溶解度積", "電離定数", "平衡定数"], exp: "K_w = [H⁺][OH⁻] を水のイオン積といいます。温度が変わらなければ、溶質によらず常に一定になります。" },
+      { date: "10月14日追加", q: "25℃で、0.010 mol/L の水酸化ナトリウム水溶液（電離度 1.0）の pH を求めよ。", options: ["12", "11", "2", "10"], exp: "[OH⁻] = 0.010 mol/L × 1.0 = 1.0 × 10⁻² mol/L。25℃では [H⁺][OH⁻] = 1.0 × 10⁻¹⁴ mol/L² なので、[H⁺] = (1.0 × 10⁻¹⁴) / (1.0 × 10⁻²) = 1.0 × 10⁻¹² mol/L。よって pH = 12 となります。" },
+      { date: "10月14日追加", q: "25℃で、0.050 mol/L のアンモニア水（電離度 0.020）の pH を求めよ。", options: ["11", "12", "3", "10"], exp: "[OH⁻] = 0.050 mol/L × 0.020 = 1.0 × 10⁻³ mol/L。25℃では [H⁺] = (1.0 × 10⁻¹⁴) / (1.0 × 10⁻³) = 1.0 × 10⁻¹¹ mol/L。よって pH = 11 となります。" },
+      { date: "10月14日追加", q: "水素イオン濃度 [H⁺] = 10⁻ⁿ mol/L のとき、pH はどのように表されるか？", options: ["pH = n", "pH = 10⁻ⁿ", "pH = -n", "pH = 1/n"], exp: "[H⁺] = 10⁻ⁿ mol/L のとき、pH = n となります。" },
+      { date: "10月14日追加", q: "対数を用いて pH を求める式として正しいものはどれか？", options: ["pH = -log₁₀[H⁺]", "pH = log₁₀[H⁺]", "pH = 10^(-[H⁺])", "pH = -log₁₀[OH⁻]"], exp: "pH は、水素イオン濃度 [H⁺] の常用対数の符号を逆にして、pH = -log₁₀[H⁺] と表すことができます。" },
+      { date: "10月14日追加", q: "25℃で、0.02 mol/L の塩酸（電離度 1.0）の pH を求めよ。（log₁₀2 = 0.3 とする）", options: ["1.7", "2.7", "0.3", "2.0"], exp: "[H⁺] = 0.02 mol/L × 1.0 = 2 × 10⁻² mol/L。pH = -log₁₀(2 × 10⁻²) = -(log₁₀2 + log₁₀10⁻²) = -(0.3 - 2.0) = 1.7 となります。" },
+      { date: "10月14日追加", q: "酸の水溶液における水素イオン濃度 [H⁺] を求める計算式として正しいものはどれか？", options: ["[H⁺] = 価数 × 電離度 × 酸の濃度", "[H⁺] = 価数 × 酸の濃度", "[H⁺] = 電離度 × 酸の濃度", "[H⁺] = 価数 × 電離度 ÷ 酸の濃度"], exp: "酸の場合、[H⁺] は「価数 × 電離度 × 酸の濃度」で求められます。" },
+      { date: "10月14日追加", q: "塩基の水溶液における水酸化物イオン濃度 [OH⁻] を求める計算式として正しいものはどれか？", options: ["[OH⁻] = 価数 × 電離度 × 塩基の濃度", "[OH⁻] = 価数 × 塩基の濃度", "[OH⁻] = 電離度 × 塩基の濃度", "[OH⁻] = 価数 × 電離度 ÷ 塩基の濃度"], exp: "塩基の場合、[OH⁻] は「価数 × 電離度 × 塩基の濃度」で求められます。" },
+      { date: "10月14日追加", q: "水質管理や土壌管理などで用いられる、一番精度が低い pH 試験紙はどれか？", options: ["リトマス紙", "BTB 溶液", "フェノールフタレイン溶液", "万能 pH 試験紙"], exp: "リトマス紙は一番精度の低い pH 試験紙です。" },
+      { date: "10月14日追加", q: "デジタル表示で pH を測定できる機器を何というか？", options: ["pHメーター (pH計)", "pHセンサー", "pHインジケーター", "pHチェッカー"], exp: "デジタル表示で pH を測定可能な機器を pH メーター (pH計) といい、測定精度と金額は比例します。" },
+      { date: "10月14日追加", q: "0.010 mol/L の塩酸（電離度 1.0 とする）の pH を求めよ。", options: ["2", "1", "3", "0"], exp: "塩酸は1価の強酸（電離度1.0）。[H⁺] = 1 × 1.0 × 0.010 = 1.0 × 10⁻² mol/L。よって pH = 2 です。" },
+      { date: "10月14日追加", q: "0.50 mol/L の硫酸（電離度 1.0 とする）の pH を求めよ。", options: ["0", "1", "2", "-1"], exp: "硫酸は2価の強酸（電離度1.0）。[H⁺] = 2 × 1.0 × 0.50 = 1.0 = 1.0 × 10⁰ mol/L。よって pH = 0 です。" },
+      { date: "10月14日追加", q: "0.010 mol/L の硝酸（電離度 1.0 とする）の pH を求めよ。", options: ["2", "1", "3", "0"], exp: "硝酸は1価の強酸（電離度1.0）。[H⁺] = 1 × 1.0 × 0.010 = 1.0 × 10⁻² mol/L。よって pH = 2 です。" },
+      { date: "10月14日追加", q: "0.010 mol/L の酢酸（電離度 α = 0.010）の pH を求めよ。", options: ["4", "2", "3", "5"], exp: "酢酸は1価の弱酸。[H⁺] = 1 × 0.010 × 0.010 = 1.0 × 10⁻⁴ mol/L。よって pH = 4 です。" },
+      { date: "10月14日追加", q: "0.010 mol/L の水酸化ナトリウム水溶液（電離度 1.0 とする）の pH を求めよ。", options: ["12", "2", "10", "14"], exp: "NaOHは1価の強塩基。[OH⁻] = 1 × 1.0 × 0.010 = 1.0 × 10⁻² mol/L。[H⁺] = 10⁻¹⁴ / 10⁻² = 10⁻¹² mol/L。よって pH = 12 です。" },
+      { date: "10月14日追加", q: "0.0050 mol/L の水酸化カルシウム水溶液（電離度 1.0 とする）の pH を求めよ。", options: ["12", "2", "10", "14"], exp: "Ca(OH)₂は2価の強塩基。[OH⁻] = 2 × 1.0 × 0.0050 = 0.010 = 1.0 × 10⁻² mol/L。[H⁺] = 10⁻¹⁴ / 10⁻² = 10⁻¹² mol/L。よって pH = 12 です。" },
+      { date: "10月14日追加", q: "0.50 mol/L の水酸化銅(II) 水溶液（電離度 α = 0.10）の pH を求めよ。", options: ["13", "12", "1", "2"], exp: "Cu(OH)₂は2価の弱塩基。[OH⁻] = 2 × 0.10 × 0.50 = 0.10 = 1.0 × 10⁻¹ mol/L。[H⁺] = 10⁻¹⁴ / 10⁻¹ = 10⁻¹³ mol/L。よって pH = 13 です。" },
+      { date: "10月14日追加", q: "pHが1の塩酸を1000倍に薄めた水溶液の pH を求めよ。", options: ["4", "3", "5", "1000"], exp: "pH = 1 は [H⁺] = 10⁻¹ mol/L。1000倍に薄めると濃度は 1/1000 になるので、[H⁺] = 10⁻¹ × 10⁻³ = 10⁻⁴ mol/L。よって pH = 4 です。" },
+      { date: "10月14日追加", q: "pHが13の NaOH 水溶液を10倍に薄めた水溶液の pH を求めよ。", options: ["12", "14", "130", "1"], exp: "pH = 13 は [H⁺] = 10⁻¹³ mol/L。10倍に薄めると塩基の濃度が1/10になり、[OH⁻]が1/10になるため[H⁺]は10倍になります。よって [H⁺] = 10⁻¹² mol/L となり、pH = 12 です。" },
+      { date: "10月14日追加", q: "0.050 mol/L のアンモニア水（電離度 α = 0.020）の pH を求めよ。", options: ["11", "3", "10", "12"], exp: "NH₃は1価の弱塩基。[OH⁻] = 1 × 0.020 × 0.050 = 0.0010 = 1.0 × 10⁻³ mol/L。[H⁺] = 10⁻¹⁴ / 10⁻³ = 10⁻¹¹ mol/L。よって pH = 11 です。" }
+    ]
+  };
+
+  // State
+  let currentSubject = 'chemistry';
+  let selectedDate = '';
+  let selectedCountStr = '5';
+  let currentQuestions = [];
+  let currentQIndex = 0;
+  let correctCount = 0;
+  let wrongQuestions = [];
+  let isAnswered = false;
+
+  // Screen Management
+  function showScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+  }
+
+  // Step 1: Select Subject
+  function selectSubject(subjectId) {
+    currentSubject = subjectId;
+    const questions = quizData[subjectId];
+    
+    // Get unique dates
+    const dates = [...new Set(questions.map(q => q.date))];
+    const dateList = document.getElementById('dateList');
+    dateList.innerHTML = '';
+    
+    dates.forEach(date => {
+      const btn = document.createElement('div');
+      btn.className = 'mode-card';
+      btn.innerHTML = `
+        <span class="mode-icon"><i data-lucide="calendar" class="icon-xl"></i></span>
+        <div><div class="mode-info-title">${date}</div><div class="mode-info-desc">この日の追加問題を解く</div></div>
+      `;
+      btn.onclick = () => { selectedDate = date; showScreen('countScreen'); };
+      dateList.appendChild(btn);
+    });
+    
+    // Add "All Random" Option
+    const randomBtn = document.createElement('div');
+    randomBtn.className = 'mode-card';
+    randomBtn.style.borderColor = 'var(--accent)';
+    randomBtn.innerHTML = `
+      <span class="mode-icon" style="color:var(--accent)"><i data-lucide="shuffle" class="icon-xl"></i></span>
+      <div><div class="mode-info-title">全問ランダム (総合テスト)</div><div class="mode-info-desc">全範囲からランダム出題</div></div>
+    `;
+    randomBtn.onclick = () => { selectedDate = 'random'; showScreen('countScreen'); };
+    dateList.appendChild(randomBtn);
+    
+    lucide.createIcons();
+    showScreen('dateScreen');
+  }
+
+  // Step 3: Select Count
+  function selectCount(count) {
+    selectedCountStr = count;
+    document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('selected'));
+    if(count === 5) document.getElementById('btnCount5').classList.add('selected');
+    if(count === 10) document.getElementById('btnCount10').classList.add('selected');
+    if(count === 'all') document.getElementById('btnCountAll').classList.add('selected');
+  }
+
+  // Start Quiz
+  function startQuiz() {
+    let source = selectedDate === 'random' 
+      ? [...quizData[currentSubject]] 
+      : quizData[currentSubject].filter(q => q.date === selectedDate);
+    
+    // Shuffle all valid questions
+    source.sort(() => Math.random() - 0.5);
+    
+    let limit = selectedCountStr === 'all' ? source.length : parseInt(selectedCountStr);
+    currentQuestions = source.slice(0, Math.min(limit, source.length));
+    
+    currentQIndex = 0;
+    correctCount = 0;
+    wrongQuestions = [];
+    
+    document.getElementById('qTotalNum').textContent = currentQuestions.length;
+    document.getElementById('scoreCorrect').textContent = 0;
+    document.getElementById('scoreWrong').textContent = 0;
+    
+    showScreen('quizScreen');
+    loadQuestion();
+  }
+
+  // Load a single question
+  function loadQuestion() {
+    isAnswered = false;
+    const q = currentQuestions[currentQIndex];
+    document.getElementById('qCurrentNum').textContent = currentQIndex + 1;
+    document.getElementById('questionText').textContent = q.q;
+    
+    const progress = (currentQIndex / currentQuestions.length) * 100;
+    document.getElementById('progressBar').style.width = progress + '%';
+    
+    document.getElementById('feedbackBox').style.display = 'none';
+    document.getElementById('nextBtn').style.display = 'none';
+    
+    const optionsArea = document.getElementById('optionsArea');
+    optionsArea.innerHTML = '';
+    
+    // Mapping original options to track the correct one (index 0)
+    let shuffledOptions = q.options.map((text, i) => ({ text: text, isCorrect: i === 0 }));
+    // Shuffle the mapped options
+    shuffledOptions.sort(() => Math.random() - 0.5);
+    
+    shuffledOptions.forEach((optObj, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      if(optObj.isCorrect) btn.dataset.correct = "true";
+      btn.innerHTML = `<div class="option-num">${idx + 1}</div><div>${optObj.text}</div>`;
+      btn.onclick = () => handleAnswer(optObj.isCorrect, btn, optionsArea, q);
+      optionsArea.appendChild(btn);
+    });
+  }
+
+  // Handle Answer Selection
+  function handleAnswer(isCorrect, btnElement, optionsArea, q) {
+    if (isAnswered) return;
+    isAnswered = true;
+    
+    const allBtns = optionsArea.children;
+    for(let b of allBtns) { b.disabled = true; }
+    
+    const feedbackStatus = document.getElementById('feedbackStatus');
+    
+    if (isCorrect) {
+      btnElement.classList.add('correct', 'anim-correct-shine');
+      correctCount++;
+      document.getElementById('scoreCorrect').textContent = correctCount;
+      feedbackStatus.innerHTML = `<i data-lucide="check-circle-2" class="icon-md"></i> 正解！`;
+      feedbackStatus.className = 'feedback-status is-correct';
+    } else {
+      btnElement.classList.add('wrong', 'anim-wrong-shake');
+      // Highlight the actual correct answer
+      for(let b of allBtns) {
+        if(b.dataset.correct === "true") b.classList.add('correct');
+      }
+      document.getElementById('scoreWrong').textContent = wrongQuestions.length + 1;
+      wrongQuestions.push(q);
+      feedbackStatus.innerHTML = `<i data-lucide="x-circle" class="icon-md"></i> 不正解...`;
+      feedbackStatus.className = 'feedback-status is-wrong';
+    }
+    
+    document.getElementById('feedbackExp').textContent = q.exp;
+    document.getElementById('feedbackBox').style.display = 'block';
+    document.getElementById('nextBtn').style.display = 'flex';
+    lucide.createIcons();
+  }
+
+  // Next Question / Finish
+  function goNext() {
+    currentQIndex++;
+    if (currentQIndex < currentQuestions.length) {
+      loadQuestion();
+    } else {
+      showResult();
+    }
+  }
+
+  // Result Screen
+  function showResult() {
+    document.getElementById('progressBar').style.width = '100%';
+    const score = Math.round((correctCount / currentQuestions.length) * 100);
+    document.getElementById('resultScore').textContent = score;
+    
+    let msg = "";
+    if (score === 100) msg = "完璧！全問正解です！ 🎉";
+    else if (score >= 80) msg = "素晴らしい！高得点です！ 👏";
+    else if (score >= 50) msg = "合格点！さらに上を目指そう！ 👍";
+    else msg = "もう一息！復習して再チャレンジ！ 💪";
+    document.getElementById('resultMsg').textContent = msg;
+
+    const reviewArea = document.getElementById('reviewArea');
+    const reviewList = document.getElementById('reviewList');
+    
+    if (wrongQuestions.length > 0) {
+      reviewArea.style.display = 'block';
+      reviewList.innerHTML = '';
+      wrongQuestions.forEach(q => {
+        const item = document.createElement('div');
+        item.className = 'review-item';
+        // Display q.options[0] because it is ALWAYS the correct answer in the source data
+        item.innerHTML = `
+          <div class="review-q">Q. ${q.q}</div>
+          <div class="review-ans"><i data-lucide="check" class="icon-sm"></i>正解: ${q.options[0]}</div>
+          <div class="review-exp">${q.exp}</div>
+        `;
+        reviewList.appendChild(item);
+      });
+      lucide.createIcons();
+    } else {
+      reviewArea.style.display = 'none';
+    }
+    
+    showScreen('resultScreen');
+  }
+  
+  // Set default selection
+  selectCount(5);
+</script>
+</body>
+</html>
